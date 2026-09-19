@@ -1,87 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
-<!-- viewport-fit=cover is what lets the layout reach under the notch and the
-     home indicator; styles.css then pads it back with env(safe-area-inset-*).
-     The platform only injects a viewport when a page has none, so this one
-     stands and must keep viewport-fit=cover. -->
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Your app</title>
+<title>Réseau Québec</title>
 <link rel="stylesheet" href="/styles.css">
-
-<!-- DO NOT ADD A WEB APP MANIFEST OR APP ICONS HERE.
-     The platform injects the install metadata at the proxy from THIS app's
-     real name, with its own generated icon and colour. It backs off the
-     instant a page declares a manifest link of its own, so anything static
-     here would win that race and give every app the same placeholder
-     identity: every install named "Your app", every home screen icon
-     identical. Shipping nothing is what gets the user their own name.
-     Careful: the detector greps this HTML for a manifest link, so even a
-     commented-out or example one silently disables it. Do not write one.
-     (Running locally there is no install metadata. That is expected; it
-     appears once the app is served on *.vibekit.bot.) -->
 </head>
 <body>
-
 <header class="appbar">
-  <h1 id="app-name">Your app</h1>
-  <span class="status"><span class="dot"></span>Live</span>
+  <button class="icon-btn" id="back" aria-label="Retour" hidden><i data-lucide="chevron-left"></i></button>
+  <div><small>100 % québécois</small><h1 id="app-name">Réseau Québec</h1></div>
+  <div class="balance"><i data-lucide="coins"></i><strong id="balance">50</strong></div>
 </header>
-
 <main>
-  <!-- One <section class="screen"> per tab. app.js just toggles .active. -->
-  <section class="screen active" id="screen-home">
-    <div class="card">
-      <h2>This is your app</h2>
-      <p>Open the chat with your agent and describe what you want. Every change ships in
-         seconds and shows up right here.</p>
-    </div>
-    <div class="card" id="install-card" hidden>
-      <h2>Add it to your home screen</h2>
-      <p id="install-copy">Install it and it opens full screen with its own icon, like any other app.</p>
-      <button class="btn" id="install-btn" hidden>Install</button>
-    </div>
-    <ul class="list">
-      <li><span>Tabs below are yours</span><span class="meta">rename them</span></li>
-      <li><span>Data persists</span><span class="meta">lib/store.js</span></li>
-      <li><span>Add API routes</span><span class="meta">server.js</span></li>
-    </ul>
+  <section class="screen active" id="screen-bienvenue">
+    <div class="hero"><span class="eyebrow">Découvrir. Soutenir. Rayonner.</span><h2>Le Québec se découvre ici.</h2><p>Un réseau fermé où chaque vraie découverte aide une entreprise locale à gagner en visibilité.</p><button class="btn nav" data-go="inscription">Commencer <i data-lucide="arrow-right"></i></button></div>
+    <div class="steps"><article><b>1</b><span>Explore une fiche locale pendant 20 secondes.</span></article><article><b>2</b><span>Gagne 10 Crédits Découverte.</span></article><article><b>3</b><span>Booste ta fiche dans notre fil interne.</span></article></div>
+    <p class="legal">Aucune automatisation, donnée ou statistique Facebook n’est utilisée.</p>
   </section>
 
-  <section class="screen" id="screen-add">
-    <div class="card">
-      <h2>Second screen</h2>
-      <p>Whatever your app's main action is, put it here. Tell your agent and it will
-         rebuild this tab around it.</p>
+  <section class="screen" id="screen-inscription">
+    <div class="page-title"><span class="eyebrow">Bienvenue</span><h2>Ton profil découverte</h2><p>Aucune connexion requise pour cette première version.</p></div>
+    <form class="card form" id="profile-form"><label>Ton prénom<input id="first-name" placeholder="Ex. Éric" required></label><label>Nom de ton entreprise<input id="business-name" placeholder="Ex. Atelier du Fjord" required></label><label>Région<select id="region"><option>Capitale-Nationale</option><option>Montréal</option><option>Chaudière-Appalaches</option><option>Bas-Saint-Laurent</option><option>Saguenay–Lac-Saint-Jean</option></select></label><button class="btn" type="submit">Créer mon profil — 50 crédits</button></form>
+  </section>
+
+  <section class="screen" id="screen-fil">
+    <div class="page-title"><span class="eyebrow">Fil Découverte</span><h2>Des entreprises d’ici</h2><p>Choisis une fiche et prends le temps de la découvrir.</p></div>
+    <div class="filters"><button class="pill active">Pour toi</button><button class="pill">Près de moi</button><button class="pill">Nouveautés</button></div>
+    <div class="feed">
+      <button class="business nav" data-go="fiche" data-company="Miller Zoo"><span class="cover zoo"><i data-lucide="paw-print"></i><em>En vedette</em></span><span class="business-copy"><small>Frampton · Expérience</small><strong>Miller Zoo</strong><span>Sanctuaire animalier familial au cœur de la Beauce.</span></span><i data-lucide="chevron-right"></i></button>
+      <button class="business nav" data-go="fiche" data-company="Bel Air Coiffure"><span class="cover hair"><i data-lucide="scissors"></i></span><span class="business-copy"><small>Estcourt · Beauté</small><strong>Bel Air Coiffure</strong><span>Coiffure actuelle, accueil chaleureux et savoir-faire local.</span></span><i data-lucide="chevron-right"></i></button>
+      <button class="business nav" data-go="fiche" data-company="Encre Boréale"><span class="cover ink"><i data-lucide="pen-tool"></i></span><span class="business-copy"><small>Charlesbourg · Tatouage</small><strong>Encre Boréale</strong><span>Des œuvres sur mesure inspirées du territoire québécois.</span></span><i data-lucide="chevron-right"></i></button>
     </div>
   </section>
 
-  <section class="screen" id="screen-you">
-    <div class="card">
-      <h2>Profile</h2>
-      <p>Settings, account, saved items. Ask your agent for sign-in if you need it.</p>
-    </div>
-    <footer>Built with <a href="https://vibekit.bot">VibeKit</a></footer>
+  <section class="screen" id="screen-fiche">
+    <div class="profile-hero"><div class="logo"><i data-lucide="paw-print"></i></div><span class="eyebrow">Frampton · Chaudière-Appalaches</span><h2 id="company-title">Miller Zoo</h2><p>Sanctuaire animalier familial dédié au bien-être et à la découverte d’animaux d’ici et d’ailleurs.</p></div>
+    <div class="timer-card"><div class="timer-ring"><strong id="timer">20</strong><small>sec</small></div><div><strong id="reward-title">Découverte en cours</strong><p id="reward-copy">Reste sur cette fiche pour gagner 10 crédits.</p></div></div>
+    <div class="card"><h3>À découvrir</h3><div class="tags"><span>Sanctuaire</span><span>Famille</span><span>Animaux</span></div><p>Une sortie authentique où chaque visite contribue directement au soin des pensionnaires.</p></div>
+    <a class="btn secondary" href="https://www.facebook.com/" target="_blank" rel="noopener">Découvrir sur Facebook <i data-lucide="external-link"></i></a>
+  </section>
+
+  <section class="screen" id="screen-booster">
+    <div class="page-title"><span class="eyebrow">Booster</span><h2>Fais rayonner ta fiche</h2><p>Place ton entreprise en tête du fil, uniquement dans Réseau Québec.</p></div>
+    <div class="card promo"><i data-lucide="rocket"></i><div><small>Boost local</small><h3>24 heures en vedette</h3><p>Ta fiche remonte dans le fil Découverte.</p></div><strong>30 crédits</strong></div>
+    <div class="card status-card"><span>Statut actuel</span><strong id="boost-status">Aucun boost actif</strong></div>
+    <button class="btn" id="boost-btn">Activer pour 30 crédits</button>
+  </section>
+
+  <section class="screen" id="screen-credits">
+    <div class="wallet"><span>Mon solde</span><strong><i data-lucide="coins"></i><span id="wallet-balance">50</span></strong><small>Crédits Découverte</small></div>
+    <div class="card"><h3>Activité récente</h3><ul class="activity" id="activity"><li><i data-lucide="gift"></i><span><strong>Crédits de bienvenue</strong><small>À l’ouverture du profil</small></span><b>+50</b></li></ul></div>
+    <div class="note"><i data-lucide="shield-check"></i><p>10 crédits sont accordés après 20 secondes réelles, une seule fois par entreprise.</p></div>
+  </section>
+
+  <section class="screen" id="screen-or">
+    <div class="gold-card"><i data-lucide="crown"></i><span>Publicitaire Or</span><h2>Une présence qui brille plus longtemps.</h2><p>Découvre le statut Or pour mettre ton identité locale au premier plan.</p><button class="btn" id="gold-interest">Ça m’intéresse</button></div>
+    <div class="card"><h3>Ce qui est inclus</h3><ul class="checks"><li><i data-lucide="check"></i>Badge Or distinctif</li><li><i data-lucide="check"></i>Emplacement prioritaire prolongé</li><li><i data-lucide="check"></i>Mise en valeur de ton histoire</li></ul></div>
+  </section>
+
+  <section class="screen" id="screen-prix">
+    <div class="page-title"><span class="eyebrow">Prix et Jeux</span><h2>Le local, ça se célèbre.</h2><p>Des défis simples pour découvrir davantage d’entreprises québécoises.</p></div>
+    <div class="challenge"><i data-lucide="trophy"></i><div><small>Défi de la semaine</small><h3>Explore 3 régions</h3><p>1 région découverte sur 3</p><div class="progress"><span></span></div></div></div>
+    <div class="card"><h3>Prix découverte</h3><p>Complète les défis pour débloquer des badges et des avantages dans l’app. Aucun achat requis.</p></div>
   </section>
 </main>
 
-<!-- Bottom tab bar: thumb-reachable, which is where phone navigation belongs. -->
 <nav class="tabbar" role="tablist">
-  <button class="tab active" role="tab" data-screen="home" aria-selected="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span>Home</span>
-  </button>
-  <button class="tab" role="tab" data-screen="add" aria-selected="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-    <span>Add</span>
-  </button>
-  <button class="tab" role="tab" data-screen="you" aria-selected="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span>You</span>
-  </button>
+<button class="tab active" data-screen="bienvenue"><i data-lucide="sparkles"></i><span>Bienvenue</span></button>
+<button class="tab" data-screen="inscription"><i data-lucide="user-plus"></i><span>Inscription</span></button>
+<button class="tab" data-screen="fil"><i data-lucide="layout-grid"></i><span>Découvrir</span></button>
+<button class="tab" data-screen="fiche"><i data-lucide="store"></i><span>Fiche</span></button>
+<button class="tab" data-screen="booster"><i data-lucide="rocket"></i><span>Booster</span></button>
+<button class="tab" data-screen="credits"><i data-lucide="coins"></i><span>Crédits</span></button>
+<button class="tab" data-screen="or"><i data-lucide="crown"></i><span>Or</span></button>
+<button class="tab" data-screen="prix"><i data-lucide="trophy"></i><span>Prix</span></button>
 </nav>
-
+<div class="modal" id="confirm-modal" hidden><div class="modal-box"><i data-lucide="rocket"></i><h3>Confirmer le boost?</h3><p>30 crédits seront retirés pour placer ta fiche en vedette pendant 24 heures.</p><div><button class="btn ghost" id="cancel-boost">Annuler</button><button class="btn" id="confirm-boost">Confirmer</button></div></div></div>
+<div class="toast" id="toast"></div>
+<footer>© 2026 Eric Richard — Tous droits réservés</footer>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

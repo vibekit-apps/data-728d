@@ -1,65 +1,16 @@
-// Tab switching, the install prompt, and the service worker. That is all.
-// No framework, no build step, no bundle to keep in sync.
-
-// ── Tabs ───────────────────────────────────────────────────────────
-const tabs = document.querySelectorAll('.tab');
-const screens = document.querySelectorAll('.screen');
-
-function show(name) {
-  screens.forEach((s) => s.classList.toggle('active', s.id === `screen-${name}`));
-  tabs.forEach((t) => {
-    const on = t.dataset.screen === name;
-    t.classList.toggle('active', on);
-    t.setAttribute('aria-selected', String(on));
-  });
-  // Each tab starts at the top, the way a native tab bar behaves.
-  window.scrollTo(0, 0);
-}
-tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.screen)));
-
-// ── Title ──────────────────────────────────────────────────────────
-// Name the app after its subdomain until the agent gives it a real one, so a
-// fresh build never says "Your app" on a page the user is already sharing.
-const sub = location.hostname.split('.')[0];
-if (sub && sub !== 'localhost' && !/^\d+$/.test(sub)) {
-  const pretty = sub.replace(/-[a-z0-9]{4}$/i, '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-  if (pretty) {
-    document.getElementById('app-name').textContent = pretty;
-    document.title = pretty;
-  }
-}
-
-// ── Install ────────────────────────────────────────────────────────
-// Two different worlds. Chrome fires beforeinstallprompt and gives us a real
-// button. iOS Safari has no such event and never will, so the only honest move
-// there is to tell the user where the Share button is. Both are hidden once the
-// app is already installed, since display-mode:standalone means we ARE the
-// installed app and offering to install it again is nonsense.
-const card = document.getElementById('install-card');
-const btn = document.getElementById('install-btn');
-const installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-let deferred = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferred = e;
-  if (!installed) { card.hidden = false; btn.hidden = false; }
-});
-
-btn.addEventListener('click', async () => {
-  if (!deferred) return;
-  deferred.prompt();
-  await deferred.userChoice;
-  deferred = null;
-  card.hidden = true;
-});
-
-// iOS has no install prompt, so there is nothing for this card to do there.
-// The platform shows the iPhone its own "Add to home screen" hint above the
-// page, so one surface owns that instruction; leave it to the platform.
-
-// ── Service worker ─────────────────────────────────────────────────
-// See sw.js: network always wins, the cache is an offline fallback only.
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
-}
+lucide.createIcons();
+const screens=[...document.querySelectorAll('.screen')],tabs=[...document.querySelectorAll('.tab')];
+const balanceEls=[document.querySelector('#balance'),document.querySelector('#wallet-balance')];
+const saved=JSON.parse(localStorage.getItem('rq-state')||'null')||{credits:50,viewed:[],boostUntil:0,profile:null,activity:[]};
+let state=saved,current='bienvenue',history=[],timerId=null;
+const persist=()=>{localStorage.setItem('rq-state',JSON.stringify(state));render()};
+function render(){balanceEls.forEach(el=>el.textContent=state.credits);const active=state.boostUntil>Date.now();document.querySelector('#boost-status').textContent=active?'Actif pour 24 heures':'Aucun boost actif';document.querySelector('#boost-btn').disabled=active;document.querySelector('#boost-btn').textContent=active?'Boost actif':'Activer pour 30 crédits';const list=document.querySelector('#activity');list.innerHTML='<li><i data-lucide="gift"></i><span><strong>Crédits de bienvenue</strong><small>À l’ouverture du profil</small></span><b>+50</b></li>'+state.activity.map(x=>`<li><i data-lucide="${x.amount>0?'plus':'rocket'}"></i><span><strong>${x.label}</strong><small>${x.when}</small></span><b style="color:${x.amount>0?'#16835a':'#c2416c'}">${x.amount>0?'+':''}${x.amount}</b></li>`).join('');lucide.createIcons()}
+function show(name,push=true){if(push&&name!==current)history.push(current);current=name;screens.forEach(s=>s.classList.toggle('active',s.id===`screen-${name}`));tabs.forEach(t=>t.classList.toggle('active',t.dataset.screen===name));document.querySelector('#back').hidden=history.length===0;window.scrollTo(0,0);clearInterval(timerId);if(name==='fiche')startTimer()}
+tabs.forEach(t=>t.onclick=()=>show(t.dataset.screen));document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>show(b.dataset.go));document.querySelector('#back').onclick=()=>history.length&&show(history.pop(),false);
+document.querySelector('#profile-form').onsubmit=e=>{e.preventDefault();state.profile={first:document.querySelector('#first-name').value,business:document.querySelector('#business-name').value,region:document.querySelector('#region').value};persist();toast('Profil créé. Bienvenue dans le réseau!');show('fil')};
+function startTimer(){const company=document.querySelector('#company-title').textContent,display=document.querySelector('#timer'),title=document.querySelector('#reward-title'),copy=document.querySelector('#reward-copy');if(state.viewed.includes(company)){display.textContent='✓';title.textContent='Crédits déjà gagnés';copy.textContent='Cette fiche a déjà été récompensée.';return}let left=20;display.textContent=left;title.textContent='Découverte en cours';copy.textContent='Reste sur cette fiche pour gagner 10 crédits.';timerId=setInterval(()=>{left--;display.textContent=left;if(left<=0){clearInterval(timerId);state.viewed.push(company);state.credits+=10;state.activity.unshift({label:`Découverte · ${company}`,when:'À l’instant',amount:10});title.textContent='10 crédits gagnés!';copy.textContent='Merci d’avoir pris le temps de découvrir cette entreprise.';persist();toast('+10 Crédits Découverte')}},1000)}
+const modal=document.querySelector('#confirm-modal');document.querySelector('#boost-btn').onclick=()=>{if(state.credits<30)return toast('Solde insuffisant');modal.hidden=false};document.querySelector('#cancel-boost').onclick=()=>modal.hidden=true;document.querySelector('#confirm-boost').onclick=()=>{modal.hidden=true;if(state.credits<30)return;state.credits-=30;state.boostUntil=Date.now()+86400000;state.activity.unshift({label:'Boost de fiche · 24 h',when:'À l’instant',amount:-30});persist();toast('Ta fiche est maintenant en vedette')};
+document.querySelector('#gold-interest').onclick=()=>toast('Intérêt enregistré pour Publicitaire Or');document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));p.classList.add('active')});
+function toast(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400)}
+render();if(state.profile)show('fil',false);
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
